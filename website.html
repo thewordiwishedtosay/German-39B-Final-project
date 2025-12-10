@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Midnight Archive // ROOT_ACCESS</title>
+    <style>
+        /* --- 1. CORE AESTHETICS (Shared) --- */
+        :root {
+            --bg-color: #050505;
+            --forum-bg: #1a1a1a;
+            --header-bg: #000080; /* Classic Blue Screen Blue */
+            --text-main: #cccccc;
+            --text-dim: #777777;
+            --link-color: #ff3333;
+            --border-color: #444;
+            --terminal-green: #00ff00;
+        }
+
+        body {
+            background-color: #000; /* Fallback color */
+            
+            /* USE THE NEW SHORT NAME HERE */
+            background-image: url('back.jpg'); 
+            
+            /* This makes it repeat like tiles */
+            background-repeat: repeat;
+	    background-attachment: fixed;
+	    background-position: center center;
+	    background-size: cover;
+            
+            /* This controls the size of the icons. 
+               Try 'auto' for original size, or '150px' to make them bigger */
+            background-size: 300px; 
+
+            /* Darken it slightly so text is readable */
+            box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.6);
+            
+            /* Keep text styles */
+            color: var(--text-color);
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 40px;
+            overflow-x: hidden;
+            min-height: 100vh; /* Ensures background fills screen */
+        }
+
+        /* --- 2. LAYOUT & CONTAINERS --- */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            border: 2px solid var(--border-color);
+            background-color: var(--forum-bg);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            min-height: 600px;
+        }
+
+        /* --- 3. PORTAL (LANDING PAGE) STYLES --- */
+        #portal-view {
+            text-align: center;
+            padding: 50px 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+        }
+
+        .portal-title {
+            font-family: 'Courier New', monospace;
+            font-size: 3rem;
+            color: var(--terminal-green);
+            text-shadow: 0 0 10px var(--terminal-green);
+            margin-bottom: 10px;
+            letter-spacing: 5px;
+        }
+
+        .portal-subtitle {
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 50px;
+            border-bottom: 1px dashed #333;
+            padding-bottom: 20px;
+            width: 80%;
+        }
+
+        .gateway-btn {
+            display: block;
+            width: 80%;
+            max-width: 400px;
+            margin: 20px 0;
+            padding: 20px;
+            background: #111;
+            border: 2px solid #333;
+            color: #aaa;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gateway-btn:hover {
+            border-color: #fff;
+            color: #fff;
+            text-shadow: 0 0 5px #fff;
+            box-shadow: 0 0 20px rgba(255,255,255,0.1);
+        }
+
+        .gateway-btn::before {
+            content: ">> ";
+            color: var(--link-color);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .gateway-btn:hover::before {
+            opacity: 1;
+        }
+
+        /* --- 4. HEADER & NAV (Shared) --- */
+        .header {
+            background-color: var(--header-bg);
+            padding: 10px;
+            border-bottom: 3px solid #000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 24px;
+            color: #fff;
+            text-shadow: 2px 2px #ff0000;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .nav-bar {
+            background-color: #333;
+            color: #fff;
+            padding: 5px 10px;
+            font-size: 11px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: 15px;
+        }
+        
+        .nav-link { color: #fff; text-decoration: none; cursor: pointer; }
+        .nav-link:hover { text-decoration: underline; color: var(--terminal-green); }
+
+        /* --- 5. POST STYLES (Shared) --- */
+        .thread-view {
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .post {
+            display: flex;
+            border-bottom: 4px solid #000;
+            min-height: 200px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-sidebar {
+            width: 180px;
+            background-color: #222;
+            padding: 15px;
+            border-right: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 11px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            background-color: #000;
+            margin-bottom: 10px;
+            border: 2px inset #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            font-weight: bold;
+            font-family: monospace;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .username { color: #fff; font-weight: bold; display: block; margin-bottom: 5px; font-size: 13px; }
+        .user-title { color: var(--terminal-green); margin-bottom: 15px; display: block; }
+
+        .post-content {
+            flex-grow: 1;
+            background-color: #2b2b2b;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .post-header {
+            background-color: #3a3a3a;
+            padding: 5px 15px;
+            font-size: 10px;
+            color: #aaa;
+            border-bottom: 1px solid #444;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .post-body {
+            padding: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #ddd;
+            font-family: 'Verdana', sans-serif;
+            white-space: pre-wrap;
+        }
+
+        .post-footer {
+            margin-top: auto;
+            padding: 15px;
+            border-top: 1px dashed #555;
+            font-style: italic;
+            color: #666;
+            font-size: 11px;
+        }
+
+        /* --- 6. GLITCH & SCARY EFFECTS (Restored from Forum Page) --- */
+        
+        /* Full Screen Glitch Overlay */
+        #screen-glitch {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: black;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Courier New', monospace;
+            font-size: 2rem;
+            color: red;
+            pointer-events: none;
+        }
+
+        @keyframes violent-shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        /* ADD THIS KEYFRAME DEFINITION */
+        @keyframes glitch-anim {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        .cursed-text {
+            color: #ff0000;
+            text-shadow: 2px 0 blue, -2px 0 green;
+            animation: violent-shake 0.5s infinite;
+            display: inline-block;
+        }
+
+        .avatar-glitch {
+            background-image: repeating-linear-gradient(
+                45deg,
+                #000 0px,
+                #222 5px,
+                #000 10px
+            );
+            border-color: red !important;
+            color: red !important;
+            /* ADD THIS LINE */
+            animation: glitch-anim 0.1s infinite;
+        }
+
+        /* Control Panel for Generator */
+        .control-panel {
+            background: #222;
+            padding: 15px;
+            border-top: 2px solid #555;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-glitch {
+            background: #000;
+            border: 2px solid var(--terminal-green);
+            color: var(--terminal-green);
+            padding: 10px 20px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        .btn-glitch:hover { background: var(--terminal-green); color: #000; box-shadow: 0 0 15px var(--terminal-green); }
+
+        /* Pagination for Reader */
+        .pagination-container {
+            background-color: #222;
+            padding: 10px;
+            text-align: right;
+            border-top: 2px solid #555;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .page-btn { background: none; border: none; color: #888; cursor: pointer; margin: 0 2px; font-family: inherit; }
+        .page-btn:hover { color: #fff; text-decoration: underline; }
+        .page-active { color: var(--terminal-green); font-weight: bold; }
+        .page-disabled { color: #444; cursor: default; }
+
+    </style>
+</head>
+<body>
+
+<div id="screen-glitch">SYSTEM FAILURE // UNABLE TO LOAD SOUL</div>
+
+<div class="container">
+    
+    <!-- HEADER -->
+    <div class="header">
+        <div class="logo" id="main-logo" onclick="showPortal()">MIDNIGHT_ARCHIVE_HUB</div>
+        <div style="font-size: 10px; color: #aaa;">SERVER STATUS: <span style="color:red; text-decoration: blink;">CONNECTED</span></div>
+    </div>
+    
+    <!-- NAVIGATION -->
+    <div class="nav-bar">
+        <span class="nav-link" onclick="showPortal()">[ ROOT_DIRECTORY ]</span>
+        <span class="nav-link" onclick="loadCreepypastaMode()">> READ_LOGS</span>
+        <span class="nav-link" onclick="loadAppalachianMode()">> HEAR_WARNINGS</span>
+    </div>
+
+    <!-- 1. PORTAL VIEW (Landing Page) -->
+    <div id="portal-view">
+        <div class="portal-title">WELCOME_USER</div>
+        <div class="portal-subtitle">SELECT_DATA_STREAM</div>
+
+        <button class="gateway-btn" onclick="loadCreepypastaMode()">
+            Enjoy Your Pasta
+            <div style="font-size: 10px; color: #666; margin-top: 5px;">[ ARCHIVED STORIES // GPT-2 ]</div>
+        </button>
+
+        <button class="gateway-btn" onclick="loadAppalachianMode()">
+            Enter the Appalachian Mountains
+            <div style="font-size: 10px; color: #666; margin-top: 5px;">[ POETRY // MARKOV CHAINS]</div>
+        </button>
+    </div>
+
+    <!-- 2. CREEPYPASTA READER VIEW -->
+    <div id="creepypasta-view" class="thread-view">
+        <div style="background: #444; color: white; padding: 5px 10px; font-size: 12px; font-weight: bold; display: flex; justify-content: space-between; border-bottom: 1px solid #555;">
+            <span id="thread-title">Thread: "Found these text files on an old hard drive..."</span>
+            <span id="cp-page-indicator">Page 1</span>
+        </div>
+        
+        <div id="cp-posts-container">
+            <!-- Posts injected via JS -->
+        </div>
+
+        <div class="pagination-container" id="cp-pagination">
+            <!-- Controls injected via JS -->
+        </div>
+    </div>
+
+    <!-- 3. APPALACHIAN GENERATOR VIEW (Markov) -->
+    <div id="appalachian-view" class="thread-view">
+        <div style="background: #444; color: white; padding: 5px 10px; font-size: 12px; font-weight: bold; display: flex; justify-content: space-between; border-bottom: 1px solid #555;">
+            <span>Thread: "The_Old_Laws.txt"</span>
+            <span id="gen-post-count">Posts: 0</span>
+        </div>
+
+        <div id="gen-posts-container">
+            <!-- No static intro posts anymore -->
+        </div>
+
+        <div class="control-panel">
+            <div style="font-family: monospace; color: #555; font-size: 11px;">
+                > ₮ⱧɆ_ØⱠĐ_Ⱡ₳₩₴.₮Ӿ₮
+            </div>
+            <button class="btn-glitch" onclick="generateNewMarkovPost()">[ Listen to the mountains ]</button>
+        </div>
+    </div>
+
+    <div style="text-align: center; padding: 20px; font-size: 10px; color: #555; margin-top: auto;">
+        Powered by GhostBoard v1.1.2 <br>
+        Copyright © 1999-2005
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // DATA: FULL CREEPYPASTA STORIES
+    // ==========================================
+    const cpStories = [
+        {
+            user: "PaleWalker_99", title: "Senior Member", date: "Oct 31, 2004, 11:11 PM",
+            text: `I found a door in my basement that wasn't there before. It was small, painted red, and warm to the touch. I got rid of everything except the key, and started digging through the dirt to find it’s owner.As I was pulling up a small casket, I heard the slightest sound. A small rustle of leaves. \n\nI peered over the edge and noticed something sitting on top of the box.The lid was empty. I turned to see what had just come out of it, and saw nothing but my own reflection, with my hair cut down by a long, loose beard, and a large, yellow circle cut across the back of my head.I stood there for a moment, not sure if this was the real me again, or just some warped reflection. \n\nThen, as I did so, I noticed I could actually see myself in the mirror. I was gone, but I would always be here.In the meantime, Alex, Chris, and the others were moving in. I was now in a new house. My clothes were dirty from being buried underneath the debris, and Alex was having the hardest time adjusting to all the different faces and voices that now made their way into the kitchen and living room. \n\nIt took a while for him to get comfortable with them, but he has yet to feel truly relaxed about it. He often goes off in his mind The last thing I saw was Chris and Alex leave the house and arrive at the same house I had just left. Not long after, I heard the loud crack of the door being closed again. I ran out of the kitchen and into my bedroom, trying to get used to the idea of being alone again. I knew this was one of the worst ways to spend it, because I had to get back to the house as soon as possible. I got up, got ready, and went back to my room. \n\nAs I was leaving the kitchen, I heard my phone ring. I turned my head and noticed it was my mom. She was surprised at my sudden appearance, and excited to see me again. It was early as well, and she was already halfway out of the house.I turned around and looked back at the door. I couldn’t see anything, but it was moving with every step I took. I was staring at the door, just a few feet away from the door on my side of the backyard, and couldn’t move. \n\nIt was getting closer.\n\nI quickly opened the door and let in Mom. She turned and looked at me and smiled. \n\n“How was your trip, sweetie?” I looked at her, and her smile was genuine.`
+        },
+        {
+            user: "VHS_Lover", title: "Junior Member", date: "Nov 02, 2004, 03:33 AM",
+            text: `The old VHS tape was labeled 'Family Vacation 1999', but when I played it, the people on screen were exactly the same as when it was last played—kids at a playground, and so on. I started wondering whether someone had just been messing around with this and that video archive, or if they’d even been able to play it before. \n\nAfter playing the tape and turning the volume down all the way, I heard the familiar voice of my grandmother telling me what to do.I turned off the light and took a moment to reflect on her words: ‘He said you should go shopping!’‘Really? I want to go to the store! But I don’t have money!’I stared at her for a moment before responding.‘Yes, Aunt Debbie, that is all very sweet of you, but it really isn’t a problem.’‘What about mom? I didn’t bring a car.’ she said.\n\nShe laughed, then looked up at me. ‘You brought your own car.’I smiled back, remembering how my dad brought his own car when he moved in here from Indiana in 1994.‘You know, honey, I think we could take a walk over to the grocery store, and grab a couple of ice cream sandwiches, and maybe find I never went back because I don’t have money,’ she said.\n\nI nodded, and then realized I’d got the wrong idea.‘Are you sure mom?’‘Sure, mom.’ It was almost like she was just talking to me, or a robot. I really couldn’t tell.‘Well, who knows,’ I said, picking up the phone. ‘Maybe they’re just having a little fun with us, and I should get back to my house first thing tomorrow.‘We should go to the park. It’s a little cold out.’She paused but didn’t say anything. It seemed to me she was just waiting to see if I was up to the challenge. But then, once I heard what she had to say, and after trying to think of a way into getting home, I got to thinking. My mom was right. I shouldn’t bother them. If I had a car, I’d leave it at the gas station, and they’d be just fine. Maybe I could come back tomorrow. \n\nI got no idea where this park was. \n\nI had to find it.`
+        },
+        {
+            user: "Dr_Trenton", title: "Banned", date: "ERROR: DATE_CORRUPT",
+            text: `It started with a scratching sound inside the walls. At first I thought it was rats, but then I heard the thump as something hit the ceiling. As my eyes adjusted to the darkness and the fear of getting caught in the open door, I saw that whatever had been hiding up there had vanished when the door was slammed. Then I heard the door swing open, and someone walked out into the hallway.My heart dropped even further when I saw him. \n\nIt was none other than Dr. Trenton, who was standing by the door, peeking out through the narrow opening. He turned around and smiled at me, saying “You look great!”\n\nHe also appeared to be somewhat older than myself, with his hair hanging down like he had grown stubble. His suit was tailored to suit his body type. A large black bow-tie hung from his collar with some gold plating over the tie. His lips were slightly thin and he wore a black slicked-back baseball cap on his head.\n\nAs he looked at me, his eyes suddenly lit up. “Let’s go to the lab,” he said and we both ran up the stairs to the laboratory.\n\n“I have something to ask you Doctor,” he introduced himself without a pause. \n\n“What is it?”\n\n“Oh, nothing Doctor Then the screaming started, and I heard you two say that you were going to take the stairs without looking. How did you know?”\n\n“I thought it was because it was in that particular house,” I replied. \n\n“I’ll check every single house in the town.”He nodded and began to walk past me. \n\nAs he passed by the first house, he seemed to catch my attention. \n\nHe reached into the pocket of his suit and pulled out a small notebook.“It’s my notebook, I wrote everything down. I remember every single detail about who I am and what I see. \n\nI know you are going to be going with me.”I didn’t know what to say. “Alright,” he said and turned to begin walking back towards the stairs.“Now you have been through enough for a week, so I will let you off,” he said and walked away.A few hours later, we found a little park called Lake Park, complete with an artificial lake in the middle. We got the entire park in for free, and bought a couple of picnic chairs from a nearby local store.`
+        },
+        {
+            user: "MirrorGazer", title: "New Member", date: "Nov 05, 2004, 01:00 AM",
+            text: `I work the night shift at the morgue, and the bodies are supposed to stay still. But tonight, drawer 4B’s shelves were empty. There was nothing. As the day progressed, it became more and more clear that the body had gone somewhere else, maybe in another room, in a hallway, or on a doorstep. At least, that’s what I kept telling myself as the nights ticked by without me seeing it in person.\n\nThe second night, the sun came up, and it was clear. The body had gone up the stairs into my office. The only thing I could see was its head and its arms sticking out from the chest cavity of its body, which was covered in bruises and lacerations. It didn’t move. It just stood there, unmoving, and my stomach turned over with apprehension.\n\nIn all three years, I had never seen anything like it, and I wondered if I was hallucinating, but in that moment, I also knew that it was real, but now that I saw what I was staring at, that I was almost certain that it was real, my mind immediately jumped to what I could do to make sure I wasn’t hallucinating.\n\nI called 911, as quickly as I could, but before I could finish, I heard a gunshot. It was right outside my door. Not a shot.\n\nTo this day, I still hear the sound of the gunshot in my head. I ran downstairs, and on the way, I spotted a young man sitting in the living room of his house, watching the live feed streaming off of the local channel. I thought that was odd, since the camera was looking at something behind the screen, but he wasn’t moving, and instead, he was simply watching the stream, which I took to mean that he hadn’t moved at all.\n\nI went back into the living room, and tried to speak to him, but it was clear that I couldn’t get it out of my throat. The camera continued to watch him. It was obvious that he wasn’t doing anything, and just watching the stream, but I couldn’t get my voice out. I looked at him again, and the expression on his face was one of pure terror.\n\nI tried a few times to calm him down, but it always ended in failure. He just kept staring at the screen, his face a mixture of disbelief and rage. The voice on the camera had disappeared, and when I spoke, I did so with more conviction than I ever had before.`
+        },
+        {
+            user: "Tsunami_Surv", title: "Member", date: "Nov 12, 2004, 04:20 PM",
+            text: `The emergency broadcast system turned on at 3 AM, but the message wasn't about weather. It was a voice saying that it had been hit by the largest natural disaster in the history of the world, and that a tsunami could be imminent. A huge section of beachfront on the northern tip of New Zealand was now flooded, and an unprecedented storm had lashed the South Atlantic with wind. I don’t remember much more than getting off the plane, and finding that the rest of the hotel had gone under.\n\nThere were a few survivors gathered at the beach. Evie, Mathew, and Jade were all at the beach. At first they didn’t seem to notice anything strange, but when you’re there watching an area being swept clean by waves, something seems wrong. Mathew and Jade jumped into one of the small boats and began dragging themselves across the sand. Their limbs shook with each step as they walked.\n\nFor a while no one seemed to notice them as well, though they could clearly feel the water against their faces. I guess they’d expected this kind of response from the waves, but it wasn’t what they felt. The water around us was rushing up and pushing them further out. Evie saw the dark shapes coming towards her as she made her way into the water, as did Jade. The waves weren’t quite\n\nIt was standing right behind me, holding the camera. It didn’t wave, didn’t flicker. It just kept recording my every move. I looked and saw the face of the creature. It didn’t look angry, or sad. It was just staring at me with those sunken, dirty eyes, staring at me like it was watching me.\n\nThen it came and pulled me up to it. It grabbed me by the arm. I almost pushed it, but it grabbed my arm. It was holding me as tightly as I could, until it had yanked me into the water and made me look down at the beach. It made me turn my head to look at the face again, but didn’t move. Then it came and dragged me out of the water.\n\nThe water was already too deep. I couldn’t swim. I could do nothing. I wanted to scream for my parents, but I couldn’t move. I wanted to try and grab the camera, but I couldn’t. They were still screaming for me. For Evie. For me. I was in the water, holding onto something. The water just moved.\n\nFinally I could drag myself up, and I saw that it was the same creature again.`
+        },
+        {
+            user: "Imaginary_Friend", title: "Senior Member", date: "Nov 15, 2004, 12:00 PM",
+            text: `My daughter has an imaginary friend, but yesterday she told me it was hungry. I laughed it off until the next day, and now the thought is no longer a joke.\n\n”Her eyes lit up. “She’s so imaginative, we just get her for lunch sometimes, and she knows all sorts of different objects that we can play with. It’s not like she needs food, that’s crazy, she just likes to make people happy, and it doesn’t hurt, she gets jealous, too. But she’ll get the food, I don’t care how, it’s like some kind of magic. Anyway, I got to go and eat right now, you can come too if you want.’\n\nAnd there she was, the woman from when I thought her father wasn’t around.\n\nI didn’t recognize her at first.\n\n‘’She’s a smart girl,’’ I said in my best fake-mother voice, my voice softened slightly as I remembered what I had said before. My mother had told me that some time after my sister’s birthday, when he would be visiting her, and I wouldn’t be able to tell her about the little accident he had, her dad would bring her to the beach.\n\nWhen I woke up, my hands were covered in dirt and soapy water. I had no idea how I got there, but I heard the waves lapping against the rocks and thought maybe I could figure it out.\n\n‘’I’m so sorry,’’ I apologized, wiping my hands on the dirty grass. My parents were downstairs, and they were busy helping me shovel.\n\n‘’I was really sorry, Mom.’\n\n‘’What happened?’ I felt like I hadn’t said enough.\n\n‘’That was the worst,’ I said. ‘’The lake wasn’t so deep, Mom.’\n\nShe nodded and turned around to get the shovel.\n\n‘’I can’t remember the last time I did that, I guess I like to get as much into my body as possible,’ I told her.\n\nShe nodded again. ‘’It… it… it needs a shovel, so I can get a good look at it,’ I told her.\n\n‘’That’s too late, Mom,’ she said, and she turned around and walked over and got the shovel.`
+        },
+        {
+            user: "Morgue_Worker", title: "Administrator", date: "Nov 18, 2004, 02:45 AM",
+            text: `I work the night shift at the morgue, and the bodies are supposed to stay still. But tonight, drawer 4B’s shelves were empty. There was nothing. As the day progressed, it became more and more clear that the body had gone somewhere else, maybe in another room, in a hallway, or on a doorstep. At least, that’s what I kept telling myself as the nights ticked by without me seeing it in person.\n\nThe second night, the sun came up, and it was clear. The body had gone up the stairs into my office. The only thing I could see was its head and its arms sticking out from the chest cavity of its body, which was covered in bruises and lacerations. It didn’t move. It just stood there, unmoving, and my stomach turned over with apprehension. In all three years, I had never seen anything like it, and I wondered if I was hallucinating, but in that moment, I also knew that it was real, but now that I saw what I was staring at, that I was almost certain that it was real, my mind immediately jumped to what I could do to make sure I wasn’t hallucinating.\n\nI called 911, as quickly as I could, but before I could finish, I heard a gunshot. It was right outside my door. Not a shot\n\nTo this day, I still hear the sound of the gunshot in my head. I ran downstairs, and on the way, I spotted a young man sitting in the living room of his house, watching the live feed streaming off of the local channel. I thought that was odd, since the camera was looking at something behind the screen, but he wasn’t moving, and instead, he was simply watching the stream, which I took to mean that he hadn’t moved at all.\n\nI went back into the living room, and tried to speak to him, but it was clear that I couldn’t get it out of my throat. The camera continued to watch him. It was obvious that he wasn’t doing anything, and just watching the stream, but I couldn’t get my voice out. I looked at him again, and the expression on his face was one of pure terror.\n\nI tried a few times to calm him down, but it always ended in failure. He just kept staring at the screen, his face a mixture of disbelief and rage. The voice on the camera had disappeared, and when I spoke, I did so with more conviction than I ever had before.`
+        },
+        {
+            user: "Static_Radio", title: "Junior Member", date: "Nov 22, 2004, 11:59 PM",
+            text: `The GPS led me down an old dirt road that didn't exist on any map. The radio suddenly cut to static and the car stopped in a field outside of town. I found a rock at a picnic table that seemed like it could hold my camera. There was also a tree in the woods, but it didn’t look like I had to climb it yet. Instead, I set up my tripod on a hill behind a fence surrounded by bushes, and just as I began to figure out where to start looking, I heard another pop.\n\nI rushed over to the tent to find it empty, my phone still firmly pressed to its cradle. I pulled my mask off and checked my phone again, this time feeling something in the back of my head stir. Just then, a loud pop came from inside. My heart jumped. I realized now that the noise wasn’t static; it was the sound of some kind of growling or panting coming from the tent. I had never heard anything so distinct before.\n\nI ran over to the tent and sat down by the window as I searched the tent for what may have been the tent peeping through the mesh of the tent flaps. Once I reached the door, my eyes fell on the top of the tent and I saw that there were four small plastic chairs around the perimeter, with one side completely obscured from view. I couldn\n\nThe screen went black, and text appeared saying “You have to find it.”\n\nJust then, a voice came through the door, and I heard a guttural growl. I looked up to see myself standing in the tent.\n\n“Where are you?” I asked, and the tent-peeping voice immediately answered, “A man, I’m glad you found him.”\n\nMy heart swelled up and I felt something in my chest begin to rise.\n\n“What is your name?” he asked. I looked around, then stood up and slowly walked over to the tent.\n\nMy heart pounded in my chest, as it made its way to my throat. “I’m Steven Prescott,” I replied.\n\n“You are the only one I know,” he said. “So, what’s your name?”\n\n“My name’s Steven Prescott.” My heart started to beat more heavily now, and I turned to face Steven.\n\n“What are you doing here?” he asked. “It’s nothing,” I replied, “I just came to ask you a question.`
+        },
+        {
+            user: "11_11_Caller", title: "Member", date: "Nov 25, 2004, 11:11 PM",
+            text: `Every night at exactly 11:11, my phone rings. There is nobody on the other end, just the sound of it ringing and a long pause. Then there is silence again.\n\nI sit there, at least for a second before answering, and then I start laughing hysterically, which only makes the phone ring harder. I go to answer that call when my phone rings again, but the last line seems to have stopped working.\n\nMy family and friends have called me over the past few days and I told them I got tired, that everything was happening too fast. I told them about how my dad was dying from cancer, about my mom crying every day. I told them I thought I didn’t know what was going on, but now I think I do. Maybe everything isn’t normal.\n\nThey asked if I could tell them something they didn’t already know, and that would be the truth, or maybe not. I think I am lying. I don’t know, and I can’t help it.\n\nThis morning, after leaving for work at exactly 12:42 a.m., my phone rang again. No one was there. Only silence. That meant someone was dead, and whoever had been in that room was dead as well.\n\nI sat there in disbelief, and listened to the silence, but I couldn’t calm myself\n\nI realized too late that I wasn’t crying anymore. I was crying because I knew something was wrong. I cried because I could barely think straight anymore about what just happened.\n\nI was crying because I couldn’t believe I was sleeping.\n\nI cried because I knew something was seriously wrong. I got back to the office at 1:26 p.m. but before I stood up and walked my way to the stairs, the phone rang again. That was the second time. It was my mom. Mom wasn’t there.\n\nI kept going up the stairs to the desk and waited another long while. I didn’t expect her to call again, but she did.\n\n“Is someone there?” I asked my mom.\n\n“Yes, you’re trying to talk to me,” she said, but it was a worried look on her face, like she was afraid for something. She didn’t ask me if I felt fine. She just said I had to sit down and she should calm down.\n\nI sat down. She was right, I was too scared to talk. I couldn’t talk to her, and what I was feeling was something else. Something was wrong.`
+        },
+        {
+            user: "Used_Computer", title: "Banned", date: "Dec 01, 2004, 09:00 AM",
+            text: `I bought a used computer from a garage sale. I found a folder named 'The Truth', and inside was a video of me playing it. It showed a little text saying “Hello everyone.” When the screen went blank, it asked me if I wanted to know what I wanted to know.\n\n“Hey,” I said.\n\n“You said you wanted to ask me something, right?”\n\n“Yes.”\n\nThere was the sound of some sort of mouse clicking as the camera moved across the screen. There were a lot of files in there – I didn’t want to open the first folder yet, but when I did, it didn’t just play the voice of me, but more of an animation. The eyes blinked, and then suddenly there was an image of a white room with a computer behind it.\n\nA man in dark glasses stood at the bottom of the stairs, a chair facing him with his back turned to me. His face looked almost normal. Then he turned towards the camera and stopped facing the camera. He walked towards me. I froze for a moment, like a statue, then backed up slightly. He turned his head, and his eyes stared right at mine.\n\nAnd for a second, I hesitated. How could I not…\n\n“What’s your name?”\n\n“Miguel. It smiled at me and whispered, “You wanted me.”\n\n“You want him to leave?” I said.\n\n“If he’s not there anymore, I ask you to leave.” His voice was a little more menacing. I couldn’t see why.\n\n“But you want me to leave,” I said.\n\n“Yes.”\n\n“Really? You want to let him out? How?”\n\n“I will!”\n\nHe looked at me. He was staring at me, but there was no emotion in his eyes. Just anger. He was like a demon.\n\n“Yeah. You’re going to go get him and tell him to leave,” I said. “Good idea.”\n\n“I can’t.” I said. “Then I…”\n\nThe monitor changed to the room again. I stood back, looking at Miguel again. He was smiling. His eyes were blue. He reached out and closed his fingers on the computer to show me how beautiful he’d been. I just stared. \n\nHis voice was different now. He smiled more, and he was older.`
+        },
+        {
+            user: "Camp_Happy", title: "Member", date: "Dec 05, 2004, 07:15 AM",
+            text: `We went camping deep in the woods to get away from everything.\n\nWhen we woke up, the tent zipper was torn. The tent was a mess, too: our stuff was scattered everywhere, covered in dirt and mud, and we had no idea where we would find our next meal.\n\nI felt sick for hours. I knew what he’d think of us now, and I knew what we were going through.\n\n“Look around… see if you can tell where you found these things that looked like bones…” Matt said.\n\n“This is my favorite color!” He was dressed in his blue hiking pants and T-shirt, and I could tell he was happy.\n\nHe was happy because he’d been a lot quieter lately, but that didn’t matter at all.\n\nIt was all I needed to know. We found our food, with a little help from Alex and the others.\n\nAs we ate, Matt talked about how happy he was today.\n\n“You look really good today! This is my favorite color!” he exclaimed. I turned back to him and smiled slightly.\n\n“Well, I don’t think we need to worry so much, Matt. It’s not like we lost our entire camp just because of what you did. The thing about the dead isn’t something we can get It didn't have a face, just something that died.”\n\nHe laughed. “Now I understand why you never wanted to go back to Camp Happy. I told you to try, not to come running, but you didn’t listen. You made the wrong choice.”\n\nWe were at a crossroads.\n\nI remembered my mom’s words from earlier that morning, and I realized I was the reason she was here.\n\nWithout us, our family could not survive. She had always told me the same thing: “It’s not you or Mom or anyone else.”\n\nThat was all it was going to be, but I knew that if we continued living the same way, I would eventually come to that same place, the same realization.\n\nAfter breakfast, I spent the night on the couch.\n\nI couldn’t sleep that night, not without her. I was too damn tired to make decisions, but I tried to make some rationalizations for all of the mess.\n\nThe whole thing was so traumatic. I knew it was wrong, but I didn’t have the energy to think straight.\n\nI remember making excuses to not go outside.`
+        },
+        {
+            user: "Itchy_Arm", title: "Junior Member", date: "Dec 08, 2004, 06:30 PM",
+            text: `The itch on my left arm started a week ago.\n\nToday when I scratched it, something underneath the skin changed.\n\nIt felt like my hand was being pierced by someone else’s fingernails. The pressure of the cut became unbearable.\n\nI tried to reach out and pull away the cold scratch but there was no way.\n\nAll the fingers that were bleeding suddenly fused together into one. They weren’t broken at all.\n\nThere was nothing torn or broken inside them. I lifted my hand in front of me and noticed the veins between my palm were long and thick.\n\nThey looked like those of a spider’s web. I had never seen anything like them in my life.\n\nI ran my hand over the dark skin and it instantly became clear that they connected to my skin on my forearm and my skin on my hands.\n\nI could feel how wet they were. They were soaked through, but I still couldn’t make any move to pull them apart.\n\nMy other arm got wet too. I pulled my wrist out to check to see if my arm was still attached to the other one, but they both remained frozen together.\n\nSo far. I continued looking at them, trying to understand what was happening.\n\nI saw the dark, rough patches as well as the long, pale, grey scar under my right cheek.\n\nIt was about half an inch wide, as Then the lights went out and I felt a sudden flash of anger.\n\nI knew now what had happened to me. I should’ve remembered to take a shower before going to sleep.\n\nI left my room and grabbed a blanket and a few blankets and rushed out into the hallway.\n\nI was about to jump over the threshold when I noticed the light was coming on.\n\nThe house was almost fully dark. I jumped and turned around to look at the wall clock. 7:29am.\n\nMy sister was in the next room screaming to be heard. I couldn’t bear to look at her.\n\nMy thoughts, however, stayed fixated on the wall clock. I would have to leave now.\n\nI had to get to the bottom of the situation.\n\nAfter a few more minutes of running, I finally made it to my room and was greeted by my mother.\n\nShe was so happy to see me, I could see that she was in such good spirits.\n\nAs I walked up, the light above me dimmed and I recognized that I had been holding her while she was screaming, like I had told her to be quiet.\n\nI turned to face the door and I noticed that my mother was already standing behind me.\n\nI ran to lock the door and called for Ma.`
+        },
+        {
+            user: "Ritual_Player", title: "New Member", date: "Dec 12, 2004, 10:00 PM",
+            text: `The online forum said the ritual was just a game.\n\nBut after I lit the third candle, the shadows in the corner of the room dimmed.\n\nMy father grabbed me and looked over his shoulder at the screen, and he immediately felt ashamed.\n\nHe sat down on the edge of his bed and cried.\n\nThe next day at school I felt alone and forgotten. I spent the rest of my childhood under the supervision of a doctor.\n\nAt around eight years old, my family moved into the attic, where we lived until he died.\n\nIt was an uneasy time, and my mother was always jealous of what my brother was getting to do.\n\nWhen I would turn five years old, she made us all go outside and take a bath.\n\nOne of the times, we had to pretend to be sick, while I got the shower.\n\nMy dad would hold our hands as we walked out into the hallways, and my sister would get on her knees to show me how hot it was out there.\n\nIt was fun for about a week or so, but soon it started to wear on me and cause problems with the fever.\n\nThere were plenty of boys who I could play with, though, so I didn’t mind too much.\n\nOn one particular day, my mom called me over and asked me to go out with some of her friends.\n\nShe said that she thought that we should talk and find out The door slowly creaked open and I jumped out of her room at the sound of the door locking.\n\nShe told me that she needed to use the bathroom, and called for me so we could get inside.\n\nAs I entered, the kitchen seemed to be empty, and as I did, the smell of baked goods and fruit filled the air.\n\nI went right to the bathroom and flushed the toilet, hoping someone was going to notice me.\n\nBefore long, my mom was gone. She was taking a trip with her friends.\n\nI stood by the bathroom door waiting for my mom, and then I saw her come out of the bathroom.\n\nI saw her and her friends and then she disappeared down the stairs, and I heard the sound of the door closing behind her.\n\nI had to turn around, but I was too scared to make it to the floor, I couldn’t.\n\nI was so confused I didn’t even know where to look, so I tried to walk back towards the door and turned it, but it opened at the last second without me turning around to look at it.\n\nI was so confused I almost didn’t turn around. I turned around and walked to the door again.\n\nI waited and waited with my heart pounding.`
+        },
+        {
+            user: "Town_Smile", title: "Senior Member", date: "Dec 15, 2004, 08:00 AM",
+            text: `I woke up this morning and everyone in my town was smiling.\n\nNot a happy smile, but a wide, stretched grin that looked like I’d just woken up from a deep sleep.\n\nThe air was warm, and the sun was shining.\n\nEverything I had grown accustomed to was now familiar. It was morning, I remembered it so well.\n\nEveryone’s voices sounded cheerful, they’d be talking to me now, as if nothing had happened that morning.\n\nI had no idea what to say or where to start.\n\nAnd then I saw it.\n\nThe woman on a chair outside her room, sitting in her bed staring out at me, hands still gripping her nightgown, her face a mask of complete happiness and serenity.\n\nShe walked calmly towards my room and took the nightgown from me, putting on her glasses so I could see her again.\n\nShe smiled at me and kissed me. She made a noise like she was about to laugh when she reached her bed, but I didn’t hear it.\n\nIt was too quiet. I felt tears spring up in the corners of my eyes.\n\nI sat down beside her, her smile still framed in perfect focus.\n\nShe tilted her head slightly and whispered something into her pillow.\n\nThen she sat down, and as she did, she said “I am not lying to you. I have seen everything. It whispered my name, but the voice belonged to someone else. I know who she is. She is alive. I have waited so long to find her. I have waited so long to see her again. I…”\n\nShe broke down, sobbing uncontrollably.\n\nI remember the confusion and unease she put on my face.\n\n“Is she… the girl?” she asked me.\n\n“Yes, I think so. The one you saw in the park? I think so too. The girl who died last night. I believe she’s alive.”\n\nWhat she said had terrified me.\n\nA voice from beyond my bedroom door. “What is going on?”\n\nI felt her hand on my shoulder.\n\n“I know you were there,” she said softly.\n\n“I know you were home. I know you were with your friends. I know the house was empty. My house was empty, too.”\n\nShe stopped and put her hands gently around my head.\n\n“I was lonely, and scared. I’m here now,” she said.\n\nMy head turned to see her, her light shimmering, her smile so bright, it seemed to glow from inside.\n\n“You can come back to me. You must.`
+        },
+         {
+            user: "Coat_Thrift", title: "Moderator", date: "Jan 02, 2005, 04:44 PM",
+            text: `I bought a vintage coat from a thrift store, but I found a USB drive stitched into the lining. The only file on it was named “Piotr-Wyatt-20/5” with a stamp of approval attached to it and I had saved it in my email.
+
+It opened up to a folder titled “Steven”. If this all sounds familiar then you’ve seen my other post, “Steven”.“Steven? Steven?!” I heard a voice call out in delight from the corner of the room.
+
+I turned around and saw Alex and Marlene standing there smiling at me. I grinned as I turned around.
+
+They were my parents. Their faces were still full of joy, but they were no longer smiling.
+
+I could hear their breath in the hallway behind us, their soft and gentle voices filled the air.“Goodnight dear,” they both said.“Goodnight dad,” I smiled and turned towards them and returned the grin.
+
+“Well honey,” I said, “I’m going back to bed. I’ll see you tomorrow!”“Yeah, sure!”
+
+I turned and walked out, not really wanting to talk to Steven anymore.I made for the door before turning back, and ran down to my computer as fast as I could It was smiling at me with too many teeth, “We’ll be taking over this year!”
+
+I was just about to get back into the computer when I heard the click or click of a key.
+
+I turned to look at the computer and saw that my computer had been locked. The screen was blank.
+
+“Alex, we’re going to do it!” I grabbed my phone, and I clicked. I looked at the screen.
+
+It was the game from college that I knew from my childhood.“Steven?” I called out.I had no idea what I was going to say.
+
+I heard a click and turned around and saw Alex stepping out onto the hallway. He was wearing a shirt and tie and he had on a red bow-tie.
+
+He smiled at me as he stepped out, “You, uh… You, you look familiar!”
+
+I looked over my shoulder and noticed the red bow-tie. “Oh look, Steven, we’re here! Come look at this.”
+
+He held out his hand and he had this odd looking, black bow-tie with a gold chain.
+
+I couldn’t see it, but his fingers were long and thin and he had short black hair.`
+        },
+        {
+            user: "Fire_Lookout", title: "Member", date: "Jan 10, 2005, 01:20 AM",
+            text: `I've been the sole fire lookout for this forest for three months, but tonight I saw a fire that wasn't burning trees.
+
+It was burning people. They’re dead! My wife and children are gone! I can’t believe it anymore.
+
+I don’t know what to do. I have no idea how to stop it.”The voice stopped. “What…what do you want me to do?”
+
+She didn’t respond. “Come get me. Come get me.”The phone died.No response. No answer. No words.
+
+Her breathing grew shorter.Her eyes bulged. The sky filled with white, her lips thinned. A silent silence gripped her thoughts as she stared at the camera in the back of the car.She wasn’t moving.She was still breathing.No breath.No sound. Just silence.
+
+Then, her pulse pounded in my ears. It thumped along the lines. Not an emotion. But a pulse. No color. No expression. A heartbeat.
+
+Then, slowly, its voice faded to nothing. A whisper. Something raw: A plea.“Loved ones. Your children. Your loved ones.”No response.But a voice. A whisper. A cry.A call.A promise.
+
+My son. His smile was wide—smile as long as he The worst part is, it was wearing my face, like a mask. And the voice was gone.
+
+I didn’t want to see it. I felt it in the bottom of my stomach. Like a voice, the kind you don’t want to hear. It was coming from the car door. It didn’t scream. But it didn’t grow quiet.
+
+It started to fill the car with its presence. Like a voice, a whisper. And then the car started to turn. A slow, quiet, and silent turn. A turn toward the house.
+
+I turned to the mirror. No face. No expression. Just silence.
+
+I watched people drive by. They didn’t look at me. They saw the reflection, but they didn’t care. Instead, they looked around. Looking for something. Something they’d forgotten was wrong. Something to fix. Something to save. They stopped themselves.
+
+We turned the car around and drove to the house, past the woods. I tried to drive back, but it was too late. The mirror was gone, and nothing remained.
+
+I didn’t see what it was that was behind it.
+
+I heard the sound of the windshield breaking. It sounded like an arrow hit a target.`
+        },
+        {
+            user: "X_Ray_Specs", title: "Junior Member", date: "Jan 15, 2005, 09:15 AM",
+            text: `The doctor said my X-ray was clear, but I can still feel something moving inside my ribcage. It feels like he’s squeezing and pulsating them.”
+
+When the doctor left, I told him I wanted to go into the store to get some food, and he suggested I go on. He asked me if I felt comfortable going there alone.
+
+“Of course I do, Mommy. You don’t understand how much food I need. Don’t you ever forget what a dear and precious gift food is?
+
+The moment I went to the supermarket in the middle of the night, I felt my stomach drop; I really had no idea what I would be able to eat without help. What could I possibly think about while someone was helping me?”
+
+I explained that I thought about it all night, and decided she couldn’t tell me what to eat for dinner. She asked what I would want for dinner anyway. So I told her the answer: spaghetti. The soup, of course.
+
+So we got into our car and drove toward the grocery store. It was an ordinary grocery store. I didn’t even have to open the door, as she had already placed a plastic tub of spaghetti on the counter with two plates. We ate spaghetti and water, and then went shopping.
+
+We bought a few more things from the store Then the lights flickered and I heard, “Come for one quick bite, little lady.”
+
+She leaned over to the counter and picked up one of the spaghetti. I didn’t see why she was helping me, but as she ate, I could see she was breathing heavily.
+
+I saw her teeth turn into little black dots on her tongue. I saw her eyes get bigger and she’s trying to reach for a tomato.
+
+I ran outside to grab a tomato, and she grabbed a bowl of spaghetti in her hand.“Momma, what are you doing?!” she yelled in horror at the sight.
+
+I tried to explain to her what’s happening, but she didn’t listen. She ran out of the store, screaming and crying, and I saw her running into the house to get an umbrella.
+
+I ran back inside and got a towel. But she was crying even more. She had an argument with her son about homework, and she wanted him to go to the hospital. She’d been crying all night.
+
+I went to the hospital, and the doctor told me it was nothing, nothing more than a bad case of bronchitis. I was so shocked that I started crying again.`
+        },
+        {
+            user: "Video_Chat", title: "Junior Member", date: "Dec 16, 2005, 09:02 AM",
+            text: `I was video chatting with my wife when I heard the front door open behind her. I froze because I saw myself on the mirror, as if a ghost had returned and left me to face the mirror with the same terrifying expression and appearance.
+
+As I glanced over at my camera feed, there stood a man. He stood staring straight at me as I turned around.
+
+He was standing there in the exact same silhouette as the reflection from the mirror I’d seen in that dream.
+
+He was tall, but I didn’t recognize him; as he approached my frame, his stature increased. His features were altered.
+
+His skin became thinner. His eyes grew larger and more clear.
+
+As he walked by me, his skin tightened even further around the edges, almost like he was wearing a mask. The man's eyes seemed to glow with something darker than light, and a wicked grin carved onto his lips.
+
+When he came to my frame, the smile disappeared for a moment, but it came back like nothing had happened.As he approached my frame, he looked towards me.
+
+For a second, it appeared as if he were grinning, but it quickly became apparent he was not smiling.
+
+His hands shook as he raised one finger and moved it sideways, just slightly away from my face.
+
+I couldn’t help but shudder as he made contact, and as he drew closer, the The door locked from the outside and, for a second, I could make out a figure standing in the doorway of the house.
+
+This was not my imagination, but it was more like a reenactment of the appearance of my reflection in that dream.It was a man I had seen in that dream, but in the mirror.
+
+I could hear the creak of the door as my reflection walked by.
+
+I turned around, startled, and it wasn’t the same man.
+
+I was now being seen by that man, and the mirror of the mirror had been fixed.
+
+It looked so real again, in the exact same way it had when I’d first seen it in that dream.
+
+I turned back around and walked towards the mirror again, but the man was already gone.
+
+I walked slowly towards the doorway and closed it as I turned to face the mirror again.I was staring at my reflection again, just a few feet away.
+
+I couldn’t see it, but I could hear it, and it sounded like a low, metallic voice.
+
+It was the same voice as my father had heard in that dream.
+
+He stopped pacing, and his head fell back and his jaw tightened.
+
+I turned around again, and his face was gone.`
+        },
+        {
+            user: "My_Dog", title: "Junior Member", date: "Aug 2, 2005, 19:39 AM",
+            text: `My dog has been barking at the empty corner of the room for hours. When I took a picture with the flash on, I saw it right away as the dog was barking outside the window. It wasn’t for the dog to bark. The dog had already gone.
+
+When I stood up, my hands were shaking from the fear. I didn’t think I knew what was coming next.
+
+As I pulled the door shut behind me, I heard an ominous rumble and saw Alex running from his house towards the door. He was going fast!
+
+I ran too and looked through the door to see he was just in front of the door. He let out a short cry for help and I followed him in the same direction he came from.
+
+There was nothing out there and the noise in the hallway began subsiding to nothing. I continued running with my head down and I turned to see Matt looking back at me, wide eyed and panicked.
+
+My panic grew as I quickly realized we weren’t even supposed to be in the woods anymore and that the door had been left unlocked so that it wouldn’t be noticed until we broke it.
+
+I felt like my whole body was trembling and I tried to keep my legs together but my arms kept me upright.“What? What is it?” I said.
+
+Matt turned and walked over to me, his hand still gripping my The walls started to bleed, their windows were shattered.
+
+I looked at Matt and saw him looking at me with the same eyes that had haunted me since the day I first saw my dog. “What is it?” I said again.“Mornin’, honey.”
+
+“What are you scared of?” he asked, his voice shaking.
+
+I was feeling more than scared, I was afraid of what was next. He reached over and brought his hand up to mine and I saw that his palm was raw.
+
+It was a scratch and I felt a tug on my hand. He then turned and made his way towards the door, my pulse racing and I could feel his breath as he drew near.
+
+I was trying to shut it but I couldn’t get the door to close.
+
+I pulled the door to the hallway to open it and the sound of the door creaking closed was the last thing I remembered.
+
+It was dark now, and I couldn’t see anything, but if I could just breathe it would be all the same.
+
+I heard his footsteps again and I moved slowly to the doorway and opened it, slowly opening the door. I saw Matt, his eyes still red from fear and his breath quickening.`
+        }
+    ];
+
+    // ==========================================
+    // DATA: MARKOV CORPUS & LOGIC
+    // ==========================================
+    const corpus = `
+If you hear three knocks at the door after sunset, do not answer.
+If you hear a single, hard knock, open the door, but do not look at who stands there.
+Hold out a basket of freshly baked bread and wait until you hear the footsteps leaving to shut the door.
+If you hear someone call your name from the woods, do not answer.
+If you see a figure at the tree line wearing a wide-brimmed hat, do not look at him for longer than one second.
+If you hear chains dragging on the ground, sprinkle salt on all windowsills and door thresholds within one minute.
+If a candle is burning in the window of the old, abandoned Anderson cabin up the hill, stay indoors, no matter what.
+If the dog barks at the empty corner, leave the room backwards.
+Do not whistle at night, for the wind will whistle back with a voice that is not yours.
+If the fire turns blue, a spirit is passing through the chimney; cover your mouth.
+Never follow a light that moves against the wind.
+If you find a comb on the trail, leave it; the owner is looking for a way in.
+The trees remember the blood spilled at their roots, so do not sleep beneath the weeping willow.
+If the cicadas stop buzzing all at once, something is listening to your breathing.
+Don't look at the moon through a reflection in the water, or you will see the face of your death.
+If a stranger offers you water in a cup made of bone, decline politely and walk west.
+When the fog smells of sulfur, the gate is open.
+If you hear a baby crying in the deep woods, run the other way; it is a mimic.
+Do not acknowledge the shadow that stands by your bed; it feeds on attention.
+If the milk sours in an hour, the Little Folk are in the pantry.
+If you smell wet earth in your bedroom, do not look under the bed.
+The man with the backwards hands asks for directions; point him to the graveyard.
+If the birds fly into your window, the debt has come due.
+If you hike where the fog clings low to the pine, And the wind through the hollow hums mournful in time, Then heed what the old ones have carved into lore, Or you won’t leave the woods like you’ve left them before.
+When daylight is dying, be back in your bed, For the dusk wakes the ones that remember the dead.
+Don’t open for knocking, don’t answer your name, If it stands on two legs but don’t move the same.
+If you hear a soft song where no singer should be, Keep walking and humming, eyes down, don’t you dare see.
+Leave bread on the stump if you’ve borrowed the trail, Or the Little Ones curse you with more than just ail.
+Don’t wave at the figure who waits in the field, It knows you’ve now seen it and won’t stay concealed.
+Don’t speak of the thing that you glimpsed in the trees, What’s named becomes real, and it’ll find you with ease.
+If silence falls sudden, then hush every breath, For the quiet in woods is the herald of death.
+Three pennies at crossroads, don’t ask, just obey, Or you’ll owe a fare that you can’t ever pay.
+Don’t cut at the oak with a face in the bark, Its roots run through bones buried deep in the dark.
+If a man joins your fire and don’t meet your gaze, Offer food, speak no questions, and part ways with praise.
+Don’t fish past the hour when the moon’s at its height, What bites past that mark drags you down out of sight.
+Mark ash on your door come the coldest of nights, To ward off the shadows that dance without light.
+If you wake up with dirt on the soles of your feet, Say thanks and lie down, don’t recall, don’t repeat. And pray, not the way that the preacher man said, But the tongue of your grandma, who speaks to the dead.
+If you hear three knocks at the door after sunset, do not answer.
+If you hear a single, hard knock, open the door, but do not look at who stands there. Hold out a basket of freshly baked bread and wait until you hear the footsteps leaving to shut the door.
+If you hear someone call your name from the woods, do not answer.
+If you see a figure at the tree line wearing a wide-brimmed hat, do not look at him for longer than one second.
+If you hear chains dragging on the ground, sprinkle salt on all windowsills and door thresholds within one minute.
+If a candle is burning in the window of the old, abandoned Anderson cabin up the hill, stay indoors, no matter what.
+If you hear three knocks at the door after sunset, do not answer.
+If you hear a single, hard knock, open the door, but do not look at who stands there. Hold out a basket of freshly baked bread and wait until you hear the footsteps leaving to shut the door.
+If you hear someone call your name from the woods, do not answer.
+If you see a figure at the tree line wearing a wide-brimmed hat, do not look at him for longer than one second.
+If you hear chains dragging on the ground, sprinkle salt on all windowsills and door thresholds within one minute.
+If a candle is burning in the window of the old, abandoned Anderson cabin up the hill, stay indoors, no matter what.
+    `;
+
+    let markovChain = {};
+    const stateSize = 2; 
+
+    function buildChain() {
+        const words = corpus.replace(/\n/g, " ").trim().split(/\s+/);
+        for (let i = 0; i < words.length - stateSize; i++) {
+            let key = words.slice(i, i + stateSize).join(" ");
+            let nextWord = words[i + stateSize];
+            if (!markovChain[key]) markovChain[key] = [];
+            markovChain[key].push(nextWord);
+        }
+    }
+
+    // Helper to generate a single "sentence" that ends in punctuation or hits a limit
+    function generateSentence() {
+        const keys = Object.keys(markovChain);
+        let validStarts = keys.filter(k => /^[A-Z]/.test(k));
+        if (validStarts.length === 0) validStarts = keys;
+
+        let currentKey = validStarts[Math.floor(Math.random() * validStarts.length)];
+        let result = currentKey.split(" ");
+        let wordCount = 2;
+        
+        // Try to generate until punctuation or max 30 words
+        while (wordCount < 40) {
+            let possibilities = markovChain[currentKey];
+            if (!possibilities || possibilities.length === 0) break;
+            
+            let nextWord = possibilities[Math.floor(Math.random() * possibilities.length)];
+            result.push(nextWord);
+            wordCount++;
+
+            // Stop if we hit terminal punctuation
+            if (/[.!?]$/.test(nextWord)) {
+                break;
+            }
+            
+            currentKey = result.slice(result.length - stateSize).join(" ");
+        }
+        return result.join(" ");
+    }
+
+    // ==========================================
+    // VIEW CONTROLLER
+    // ==========================================
+    const portalView = document.getElementById('portal-view');
+    const cpView = document.getElementById('creepypasta-view');
+    const genView = document.getElementById('appalachian-view');
+    let cpCurrentPage = 1;
+    let genPostCount = 0;
+
+    function showPortal() {
+        portalView.style.display = 'flex';
+        cpView.style.display = 'none';
+        genView.style.display = 'none';
+        
+        // Ensure overlay is hidden
+        const overlay = document.getElementById('screen-glitch');
+        if(overlay) overlay.style.display = 'none';
+    }
+
+    function loadCreepypastaMode() {
+        // Scary Transition
+        triggerScreenGlitch();
+        setTimeout(() => {
+            portalView.style.display = 'none';
+            cpView.style.display = 'flex';
+            genView.style.display = 'none';
+            renderCPPosts(1);
+        }, 800);
+    }
+
+    function loadAppalachianMode() {
+        // Scary Transition
+        triggerScreenGlitch();
+        setTimeout(() => {
+            portalView.style.display = 'none';
+            cpView.style.display = 'none';
+            genView.style.display = 'flex';
+            buildChain(); 
+            if (genPostCount === 0) {
+                generateNewMarkovPost();
+            }
+        }, 800);
+    }
+
+    function triggerScreenGlitch() {
+        const overlay = document.getElementById('screen-glitch');
+        const messages = [
+            "SYSTEM FAILURE", "DON'T TURN THE PAGE", "LOOK BEHIND YOU", 
+            "DATA CORRUPTED", "THEY ARE LISTENING", "FATAL ERROR", "RUN"
+        ];
+        
+        overlay.innerText = messages[Math.floor(Math.random() * messages.length)];
+        overlay.style.display = "flex";
+        
+        let flickerCount = 0;
+        const flickerInterval = setInterval(() => {
+            overlay.style.backgroundColor = flickerCount % 2 === 0 ? "#111" : "#000";
+            overlay.style.color = flickerCount % 2 === 0 ? "red" : "white";
+            flickerCount++;
+        }, 50);
+
+        setTimeout(() => {
+            clearInterval(flickerInterval);
+            overlay.style.display = "none";
+        }, 800);
+    }
+
+    // ==========================================
+    // RENDER LOGIC: CREEPYPASTA
+    // ==========================================
+    const CP_ITEMS_PER_PAGE = 3;
+
+    // Helper: Zalgo / Corruption text generator
+    function corruptText(text) {
+        const chars = ['@', '#', '$', '%', '&', '?', '†', '‡', 'ERROR', 'NULL', '666'];
+        return text.split('').map(char => {
+            return Math.random() < 0.15 ? chars[Math.floor(Math.random() * chars.length)] : char;
+        }).join('');
+    }
+
+    function renderCPPosts(page) {
+        cpCurrentPage = page;
+        const container = document.getElementById('cp-posts-container');
+        container.innerHTML = "";
+        
+        const totalPages = Math.ceil(cpStories.length / CP_ITEMS_PER_PAGE);
+        const startIndex = (page - 1) * CP_ITEMS_PER_PAGE;
+        const pageStories = cpStories.slice(startIndex, startIndex + CP_ITEMS_PER_PAGE);
+        
+        document.getElementById('cp-page-indicator').innerText = `Page ${page} of ${totalPages}`;
+
+        pageStories.forEach((story, index) => {
+            const globalIndex = startIndex + index + 1;
+            const postDiv = document.createElement('div');
+            postDiv.className = 'post';
+            
+            // --- Random Scary Logic ---
+            const isCursed = Math.random() < 0.15;
+            const isGlitchAvatar = Math.random() < 0.2;
+
+            const userClass = isCursed ? "username cursed-text" : "username";
+            const avatarClass = isGlitchAvatar ? "avatar avatar-glitch" : "avatar";
+            const displayUser = isCursed ? corruptText(story.user) : story.user;
+            const avatarContent = isGlitchAvatar ? "NO_SIGNAL" : "IMG_" + globalIndex;
+            
+            postDiv.innerHTML = `
+                <div class="user-sidebar">
+                    <div class="${userClass}">${displayUser}</div>
+                    <div class="user-title">${story.title}</div>
+                    <div class="${avatarClass}">${avatarContent}</div>
+                    <div style="margin-top:10px;">${isCursed ? "<span style='color:red; font-weight:bold;'>[WATCHING YOU]</span>" : "<span style='color:#0f0'>[ONLINE]</span>"}</div>
+                    <br>Posts: ???
+                </div>
+                <div class="post-content">
+                    <div class="post-header"><span>${story.date}</span><span>#${globalIndex}</span></div>
+                    <div class="post-body">${story.text.replace(/\n/g, '<br>')}</div>
+                    <div class="post-footer">"Sleep well."</div>
+                </div>
+            `;
+            container.appendChild(postDiv);
+        });
+
+        // Pagination Controls
+        const nav = document.getElementById('cp-pagination');
+        let html = '';
+        if (page > 1) html += `<button class="page-btn" onclick="renderCPPosts(${page - 1})">[ << Prev ]</button>`;
+        if (page < totalPages) html += `<button class="page-btn" onclick="renderCPPosts(${page + 1})">[ Next >> ]</button>`;
+        nav.innerHTML = html;
+        
+        window.scrollTo(0,0);
+    }
+
+    // ==========================================
+    // RENDER LOGIC: GENERATOR
+    // ==========================================
+    const cursedUsers = [
+        { name: "The_Woods", title: "Administrator", avatar: "NO_SIGNAL", color: "red" },
+        { name: "Unknown_Signal", title: "Banned", avatar: "ERR_404", color: "#888" },
+        { name: "Cabin_Dweller", title: "Junior Member", avatar: "LOGS", color: "brown" },
+        { name: "Echo_Location", title: "Member", avatar: "WAVE", color: "teal" }
+    ];
+
+    const spookySignatures = [
+        "I grew up in the Appalachian mountains and I know all of the rules.",
+        "I grew up in those mountains.",
+        "I belong to the mountains.",
+        "I have been living in the mountains since 1802.",
+        "They are listening to us now.",
+        "I am not the one who left.",
+        "The soil remembers my name.",
+        "Get me out of here.",
+        "I shouldn't have come here.",
+        "I miss you.",
+        "Let me tell you what I saw in the Appalachian Mountains.",
+        "COME VISIT THE APPALACHIAN MOUNTAINS!",
+        "Hi, I love hiking!",
+        "Love nature",
+        "Tell us about yourself!",
+        "Are you real?",
+        "Who am I?",
+        "Who are you?",
+        "I have a cat and a big box. Come play with us!"
+    ];
+
+    function generateNewMarkovPost() {
+        genPostCount++;
+        document.getElementById('gen-post-count').innerText = `Posts: ${genPostCount}`;
+
+        // Generate 1 to 3 distinct sentences/warnings
+        let warningsCount = Math.floor(Math.random() * 3) + 1; 
+        let fullText = "";
+        
+        for(let i=0; i<warningsCount; i++) {
+            fullText += generateSentence() + "<br><br>";
+        }
+
+        const user = cursedUsers[Math.floor(Math.random() * cursedUsers.length)];
+        const signature = spookySignatures[Math.floor(Math.random() * spookySignatures.length)];
+        const dateStr = new Date().toLocaleTimeString();
+
+        const container = document.getElementById('gen-posts-container');
+        const postDiv = document.createElement('div');
+        postDiv.className = 'post';
+        
+        const nameClass = Math.random() > 0.7 ? "username cursed-text" : "username";
+        
+        postDiv.innerHTML = `
+            <div class="user-sidebar">
+                <div class="${nameClass}" style="color:${user.color}">${user.name}</div>
+                <div class="user-title">${user.title}</div>
+                <div class="avatar" style="border-color:${user.color}; color:${user.color};">${user.avatar}</div>
+                <br>Posts: ???
+            </div>
+            <div class="post-content">
+                <div class="post-header"><span>TODAY, ${dateStr}</span><span>#${genPostCount}</span></div>
+                <div class="post-body" style="font-family:'Courier New'; text-shadow:0 0 2px red;">${fullText}</div>
+                <div class="post-footer">"${signature}"</div>
+            </div>
+        `;
+
+        container.appendChild(postDiv);
+        postDiv.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Init
+    window.onload = function() {
+        showPortal(); // Start at root
+        
+        // --- Cursed Title Hover Effect ---
+        const titleElement = document.getElementById('thread-title');
+        const originalTitle = 'Thread: "Found these text files on an old hard drive..."';
+        const cursedTitle = `Thread: "F̧̡̫͕̲͕̬̩͙͙̮͙̹̈͒̋̆ͧ̏̐̑̋ͪ́͡͝_͕̫͎̐ǫ̡̹̥̲̩̤͉͕͓̜̹̪̬ͣ̍̈́́̒̒̂̓̄̂ͬ͂̏̾ͦͣ͟͜͢͢͠u̘̖̾ņ̘ͯ_̡̨̩̹̱̲̼̩̬̬̖͖̳͉͈́͒ͥͥ́̎͊̎ͥ̀ͩ̒ͧ̃ͫͦͬͭ͋̊͋̆̚̕͝ͅd̸̶̲̱͔̞̳͖̂̀͋̄ͮ́͘͟͡͠ t̢̮̲ͤ̄͒͊̇ͫ͞ḩ̤̻̣̠̈̊̾̂ͤ̆ͥ̃͐̊̊̇_̛̜̦ͫͯ̉̀̀ͭͣ̂̌̅ͯes̡̰̊͊e̻̫̟̠͍͓̣̺̟ͥͬ̀͗͑ͮ͊ͦ̋ͥͪ̍͌ͨ̕̚͡ t̢̾̀̇͑̃̓͒͒͂͢e̶̶̛̤͓͉͎̱͙̯̤͈̱̖̱̳̺͚̘͕̣̎̂̊̀͐ͯͪ͆̃ͧ͛͌̄̀ͦͪ̇̎̀̕͘̕͢͡͞͠x̴̨̢̛̦̻͕̥̳̭̞̱̤͔̹̏͒̊́̎͛͊͌ͬͤ͑ͯͤ͐ͭ̿̀̿͌̚͢_̛͕t f̶̶̧͓̜̻͆ͥ̀ͧ̈́̿̃̈͢ͅį͎̳̱̳̮͚̞̟͆̈̅ͤ̌ͫ̃̅̂̊̋͗̆͒ͣ̈́̀͐̚͟͜_l̷̡͙̻͎̹͛͌͊ͣͥͮ͛̉͒͡e̴̸̴̢̡̧͉̼̪̯̭̬͎̩͚͔͔͎͛̔̑ͭ̽̊͂̾͗̓̀̈̿̄̀̊ͨ͛́̈͑ͭ̔͂͘̚s̴̨̫̤͍̩̱͈͉̯ͭͩ͒ͪ̀͊̚͡ͅ ő̵̖͓̩͓͎̠̥͇̝̫͍̼͙̻̭̰̫̹̍̈ͭͩ̐ͭ̌͗ͫ̈́̿͊ͣ̆͘͢͟ͅn̶̶̨̛̖͎̟͍̙̖̝̲͕̲̅͐ͪ̓̈́̏͂͞ ạ̴̧̡̡̹̜̰̬̩͕̘͙ͤ̋̾͆ͯ̄̍͊̂̋ͫ̍̓͆̀̃ͦ̽̐̏̌͌͆̐̐͌͘͟͜͞͝͝ṇ̢̜́ͫ̽ͤ_̥͇̠͍͓̞̣̠̌ͤͦ̓̀ͯ͡ o̵̸̵̢̖̰̭̱̯͓ͦ͒͗͗ͪ̌̂̾͐ͣͭ̚͝ḻ͊͡d̛͇̦̲̹̱ͯͬ̌́ͯ̏ͫ͗͊̈́̊ h̵̷̴̢̢̫̣̙͈̤̬̠̞͚̜̖ͨͯ͊́ͫ̊̍͐̓̆ͧ͋ͩ̿ͥ̉ͨ̎̅͂̾̕̚͟͟͠͞͠͡͝ͅa̷̢̢̜͔̟̟̰͕͔ͦ̾͆̀ͤ͛͌͝͡ͅr̷̴̡͉̫̜̯̼̠̤̬̪̞̅̂̅ͪͦ̎̈ͨ̊ͮ̎̈́̊ͧͩ͗̕͟͟͠͞͠d̻̩̠̭ͥ̌ͣ_̵̨͚̻͇͎̣̤͍͓̪͍ͣͩͧ̅ͨ̔͟͡ d̵̴̡̛̛̹̭̟̱̥͎͓̥̩͕ͪͩ̿ͮ̉͗͆̍ͤ͋͂̄̌̄͂̇̓͂͜͝r̷̟͙̥̘̹̰̻̪̆̐̋̌̂ͮͭ͑͝i̎̈́v̦̖̯ͦ̾͌̽͊̇ͬͯ̒ͭͅ_̵̥̜͚̯͓̼̓̍̾̀̚͝ẹ̶̡͕̝͉͇͖̟̹̰̤̯̱ͣ̏́́̏̏̃̅͛ͬ͋͒̀͋̊ͫ̐̎̈́͘͘͜͜͞_̯ͧ̊"`;
+
+        if(titleElement) {
+            titleElement.addEventListener('mouseenter', () => {
+                titleElement.innerText = cursedTitle;
+                titleElement.style.color = 'red';
+                titleElement.style.cursor = 'help';
+            });
+
+            titleElement.addEventListener('mouseleave', () => {
+                titleElement.innerText = originalTitle;
+                titleElement.style.color = 'white';
+            });
+        }
+    }
+
+</script>
+</body>
+</html>
